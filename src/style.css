@@ -1,0 +1,86 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  height: 100vh;
+  background-color: #222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ToolBox {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ToolBox header {
+  width: 100%;
+}
+.ToolBox main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ToolBox h1,
+h2 {
+  color: #fc2db4;
+}
+.container {
+  width: 70px;
+  height: 70px;
+  background-color: #444;
+  border-radius: 0.4em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.5s;
+  transition-delay: 0.8s;
+}
+.container span {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background-color: #ebeaea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  transform: translate(calc(12px * var(--x)), calc(12px * var(--y)));
+  transition: transform 0.5s, width 0.5s, height 0.5s, background 0.5s;
+  transition-delay: calc(0.1s * var(--i));
+  cursor: pointer;
+}
+.container span i {
+  color: #fff;
+  font-size: 0em;
+  transform: 0.5s;
+}
+
+.container.active {
+  width: 200px;
+  height: 200px;
+  transition: 0.5s;
+  transition-delay: 0s;
+}
+.container.active span {
+  width: 50px;
+  height: 50px;
+  background-color: #333849;
+  transform: translate(calc(60px * var(--x)), calc(60px * var(--y)));
+}
+.container.active span i {
+  font-size: 1.5em;
+}
+.container.active span:hover i {
+  color: #fc2db4;
+  filter: drop-shadow(0 0 2px #fc2db4) drop-shadow(0 0 5px #fc2db4)
+    drop-shadow(0 0 15px #fc2db4);
+} /*# sourceMappingURL=sass.css.map */
