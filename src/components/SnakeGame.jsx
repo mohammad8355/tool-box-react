@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useReducer, useRef, useState } from "react";
 import { useLocalStorageState } from "../CustomeHooks/useLocalStorageState";
 import { useKey } from "../CustomeHooks/useKey";
 
@@ -68,15 +68,113 @@ let DirectionControlContainerStyle = {
   left: "0",
   zIndex: "10",
 };
+const initialSnake = [
+  { x: 0, y: 0 },
+  { x: 1, y: 0 },
+  { x: 2, y: 0 },
+];
+const initialState = {
+  isStart: false,
+  Score: 0,
+  direction: "RIGHT",
+  snake: initialSnake,
+  dirPath: ["+H", "+H", "+H"],
+};
+function reducer(state, action) {
+  switch (action.type) {
+    case "start":
+      return { ...state, isStart: !state.isStart };
+    case "dir":
+      return { ...state, direction: action.payload };
+    case "score":
+      return { ...state, Score: Number(state.Score) + 1 };
+    case "move":
+      const newDirPath = [...state.dirPath];
+      let newDirection;
+      switch (state.direction) {
+        case "RIGHT":
+          newDirection = "+H";
+          break;
+        case "LEFT":
+          newDirection = "-H";
+          break;
+        case "TOP":
+          newDirection = "-V";
+          break;
+        case "BOTTOM":
+          newDirection = "+V";
+          break;
+        default:
+          newDirection = "+H"; // Default to +H if no valid direction
+      }
+
+      newDirPath.push(newDirection); // Add the new direction
+      newDirPath.shift(); // Shift after adding the new direction
+
+      const updatedSnake = state.snake.map((item, i) => {
+        const dir = newDirPath[i];
+        switch (dir) {
+          case "+H":
+            return { ...item, x: item.x + 1 };
+          case "-H":
+            return { ...item, x: item.x - 1 };
+          case "+V":
+            return { ...item, y: item.y + 1 };
+          case "-V":
+            return { ...item, y: item.y - 1 };
+          default:
+            return item;
+        }
+      });
+
+      return {
+        ...state,
+        dirPath: newDirPath,
+        snake: updatedSnake,
+      };
+    case "eat":
+      let newSegment;
+      switch (state.dirPath[0]) {
+        case "+H":
+          newSegment = { x: state.snake[0].x - 1, y: state.snake[0].y };
+          break;
+        case "-H":
+          newSegment = { x: state.snake[0].x + 1, y: state.snake[0].y };
+          break;
+        case "+V":
+          newSegment = { x: state.snake[0].x, y: state.snake[0].y - 1 };
+          break;
+        case "-V":
+          newSegment = { x: state.snake[0].x, y: state.snake[0].y + 1 };
+          break;
+      }
+      if (newSegment) {
+        return {
+          ...state,
+          Score: state.Score + 1,
+          snake: [newSegment, ...state.snake],
+          dirPath: [state.dirPath[0], ...state.dirPath],
+        };
+      } else {
+        return new Error("null new segment");
+      }
+    case "reset":
+      return {
+        isStart: false,
+        Score: 0,
+        direction: "RIGHT",
+        snake: initialSnake,
+        dirPath: ["+H", "+H", "+H"],
+      };
+  }
+}
 function SnakeGame() {
-  const [isStart, setIsStart] = useState(false);
-  //const [snakeLength, setSnakeLength] = useState(3);
-  const [direction, setDirection] = useState("RIGHT");
-  const [Score, setScore] = useState(0);
   const [bestScore, setBestScore] = useLocalStorageState(0, "BestScore");
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { isStart, Score, direction, snake, dirPath } = state;
   const boardEL = useRef(null);
   function handleStart() {
-    setIsStart(!isStart);
+    dispatch({ type: "start" });
   }
   function RandomNumber(max, min) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -102,21 +200,45 @@ function SnakeGame() {
     const threshold = 1; // Adjust this value as needed
     return distance < threshold;
   }
-
+  function ScoreInc() {
+    dispatch({ type: "score" });
+  }
+  function directionSet(direction) {
+    dispatch({ type: "dir", payload: direction });
+  }
+  function Move() {
+    dispatch({ type: "move" });
+  }
+  function ResetGame() {
+    dispatch({ type: "reset" });
+  }
   useKey("ArrowUp", () => {
-    setDirection("TOP");
+    // setDirection("TOP");
+    if (direction != "BOTTOM") {
+      directionSet("TOP");
+    }
   });
   useKey("ArrowDown", () => {
-    setDirection("BOTTOM");
+    // setDirection("BOTTOM");
+    if (direction != "TOP") {
+      directionSet("BOTTOM");
+    }
   });
   useKey("ArrowRight", () => {
-    setDirection("RIGHT");
+    // setDirection("RIGHT");
+    if (direction != "LEFT") {
+      directionSet("RIGHT");
+    }
   });
   useKey("ArrowLeft", () => {
-    setDirection("LEFT");
+    // setDirection("LEFT");
+    if (direction != "RIGHT") {
+      directionSet("LEFT");
+    }
   });
   useKey("Enter", () => {
-    setIsStart(!isStart);
+    // setIsStart(!isStart);
+    dispatch({ type: "start" });
   });
   return (
     <div style={{ width: "100%" }}>
@@ -133,28 +255,28 @@ function SnakeGame() {
           <DirectionControlContainer>
             <ControlBtn
               onChange={() => {
-                if (direction != "RIGHT") setDirection("LEFT");
+                if (direction != "RIGHT") directionSet("LEFT");
               }}
             >
               🢀
             </ControlBtn>
             <ControlBtn
               onChange={() => {
-                if (direction != "BOTTOM") setDirection("TOP");
+                if (direction != "BOTTOM") directionSet("TOP");
               }}
             >
               🡹
             </ControlBtn>
             <ControlBtn
               onChange={() => {
-                if (direction != "TOP") setDirection("BOTTOM");
+                if (direction != "TOP") directionSet("BOTTOM");
               }}
             >
               🢃
             </ControlBtn>
             <ControlBtn
               onChange={() => {
-                if (direction != "LEFT") setDirection("RIGHT");
+                if (direction != "LEFT") directionSet("RIGHT");
               }}
             >
               🢂
@@ -168,14 +290,19 @@ function SnakeGame() {
           direction={direction}
           isStart={isStart}
           RandomFood={RandomPosition}
-          setIsStart={setIsStart}
-          setScore={setScore}
+          setIsStart={handleStart}
+          setScore={ScoreInc}
           hasHitEdge={hasHitEdge}
-          setDirection={setDirection}
+          setDirection={directionSet}
           setBestScore={setBestScore}
           score={Score}
           bestScore={bestScore}
           hasEatenFood={hasEatenFood}
+          move={Move}
+          eatFood={() => dispatch({ type: "eat" })}
+          snake={snake}
+          dirPath={dirPath}
+          ResetGame={ResetGame}
         ></Snake>
       </Board>
     </div>
@@ -200,16 +327,13 @@ function Snake({
   bestScore,
   hasEatenFood,
   setBestScore,
+  snake,
+  dirPath,
+  move,
+  ResetGame,
+  eatFood,
 }) {
-  const initialSnake = [
-    { x: 0, y: 0 },
-    { x: 1, y: 0 },
-    { x: 2, y: 0 },
-  ];
-  const initialDir = Array(3).fill("+H");
   const [FoodPosition, setFoodPosition] = useState({ x: 0, y: 0 });
-  const [snake, setSnake] = useState(initialSnake);
-  const [dirPath, setDirPath] = useState(initialDir);
   const headSnake = useRef(null);
   const IntervalId = useRef(null);
   function hasHitSelf(snake) {
@@ -221,58 +345,11 @@ function Snake({
     }
     return false;
   }
-
-  const moveSnake = () => {
-    if (direction === "RIGHT") {
-      dirPath.push("+H");
-      dirPath.shift();
-    } else if (direction === "LEFT") {
-      dirPath.push("-H");
-      dirPath.shift();
-    } else if (direction === "TOP") {
-      dirPath.push("-V");
-      dirPath.shift();
-    } else if (direction === "BOTTOM") {
-      dirPath.push("+V");
-      dirPath.shift();
-    }
-
-    setSnake((currentSnake) => {
-      return currentSnake.map((item, i) => {
-        return dirPath[i] === "+H"
-          ? { ...item, x: item.x + 1 }
-          : dirPath[i] === "-H"
-          ? { ...item, x: item.x - 1 }
-          : dirPath[i] === "+V"
-          ? { ...item, y: item.y + 1 }
-          : dirPath[i] === "-V" && { ...item, y: item.y - 1 };
-      });
-    });
-  };
   useEffect(() => {
     const head = snake[snake.length - 1];
     if (hasEatenFood(head, FoodPosition) && isStart) {
       setFoodPosition(RandomFood());
-      setScore((s) => s + 1);
-      let newSegment;
-      switch (dirPath[0]) {
-        case "+H":
-          newSegment = { x: snake[0].x - 1, y: snake[0].y };
-          break;
-        case "-H":
-          newSegment = { x: snake[0].x + 1, y: snake[0].y };
-          break;
-        case "+V":
-          newSegment = { x: snake[0].x, y: snake[0].y - 1 };
-          break;
-        case "-V":
-          newSegment = { x: snake[0].x, y: snake[0].y + 1 };
-          break;
-      }
-      if (newSegment) {
-        setSnake((prevSnake) => [newSegment, ...prevSnake]);
-        dirPath.unshift(dirPath[0]);
-      }
+      eatFood();
     }
     if (
       hasHitEdge({
@@ -281,7 +358,7 @@ function Snake({
       }) ||
       hasHitSelf(snake)
     ) {
-      setIsStart(false);
+      setIsStart();
       if (score > bestScore) {
         setBestScore(score);
       }
@@ -295,7 +372,7 @@ function Snake({
   }, [setFoodPosition]);
   useEffect(() => {
     if (isStart) {
-      IntervalId.current = setInterval(moveSnake, 500);
+      IntervalId.current = setInterval(move, 500);
     }
     return () => {
       if (IntervalId.current) {
@@ -303,36 +380,31 @@ function Snake({
       }
     };
   }, [isStart, direction]);
-  function ResetGame() {
-    setDirection("RIGHT");
-    setScore(0);
-    setSnake(initialSnake);
-    setDirPath(initialDir);
-  }
   return (
     <div style={SnakeStyle}>
-      {snake.map((pos, i) =>
-        i + 1 === snake.length ? (
-          <span
-            ref={headSnake}
-            key={i}
-            style={Object.assign({}, SnakeItemStyle, {
-              left: pos.x + "em",
-              top: pos.y + "em",
-              backgroundColor: "blue",
-              borderRadius: "0 .1em .1em 0",
-            })}
-          ></span>
-        ) : (
-          <span
-            key={i}
-            style={Object.assign({}, SnakeItemStyle, {
-              left: pos.x + "em",
-              top: pos.y + "em",
-            })}
-          ></span>
-        )
-      )}
+      {snake &&
+        snake.map((pos, i) =>
+          i + 1 === snake.length ? (
+            <span
+              ref={headSnake}
+              key={i}
+              style={Object.assign({}, SnakeItemStyle, {
+                left: pos.x + "em",
+                top: pos.y + "em",
+                backgroundColor: "blue",
+                borderRadius: "0 .1em .1em 0",
+              })}
+            ></span>
+          ) : (
+            <span
+              key={i}
+              style={Object.assign({}, SnakeItemStyle, {
+                left: pos.x + "em",
+                top: pos.y + "em",
+              })}
+            ></span>
+          )
+        )}
       <span
         style={Object.assign({}, SnakeFoodStyle, {
           left: FoodPosition.x + "em",
