@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StopWatch from "./components/StopWatch";
 import CurrencyConverter from "./components/CurrencyConverter";
 import WeatherStatus from "./components/WeatherStatus";
@@ -10,14 +10,37 @@ import InfoBox from "./components/InfoBox";
 import Painting from "./components/Painting";
 function App() {
   const [Item, setItem] = useState("");
+  const [position, setPosition] = useState({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  function move(e) {
+    if (isDragging) {
+      setPosition({ x: e.clientX, y: e.clientY });
+    }
+  }
+  useEffect(() => {
+    window.addEventListener("mousemove", (e) => {
+      move(e);
+    });
+  }, [setPosition]);
   return (
     <>
-      <div className="ToolBox">
+      <div
+        onMouseUp={() => setIsDragging(false)}
+        onDragOverCapture={(e) => move(e)}
+        className="ToolBox"
+      >
         <header>
           <h1>Tool Box</h1>
         </header>
-        <main>
-          <Menu setItem={setItem} />
+        <main onDragOverCapture={(e) => move(e)}>
+          <Menu
+            position={position}
+            setItem={setItem}
+            setIsDragging={setIsDragging}
+          />
           {Item === "calculator" ? (
             <Calculator />
           ) : Item === "weather" ? (
@@ -41,7 +64,7 @@ function App() {
           ) : Item === "paint" ? (
             <Painting />
           ) : (
-            ""
+            Item === "home" && ""
           )}
           {/* <StopWatch /> */}
           {/* <CurrencyConverter /> */}
@@ -53,11 +76,15 @@ function App() {
     </>
   );
 }
-function Menu({ setItem }) {
+function Menu({ setItem, position, setIsDragging }) {
   const [open, setOpen] = useState(false);
-  const position = { x: 0, y: 0 };
   return (
     <div
+      onDragStart={() => setIsDragging(true)}
+      onMouseDown={() => setIsDragging(true)}
+      onDragEnd={() => setIsDragging(false)}
+      // onDragEndCapture={() => setIsDragging(false)}
+      // onDragOverCapture={(e) => move(e)}
       className={open ? "container active" : "container"}
       onClick={() => setOpen(!open)}
       style={{ position: "absolute", top: position.y, left: position.x }}
@@ -87,7 +114,7 @@ function Menu({ setItem }) {
         {/* <h5>StopWatch</h5> */}
       </span>
       <span
-        style={{ "--i": 3, "--x": 0, "--y": 0 }}
+        style={{ "--i": 6, "--x": 1, "--y": 1 }}
         onClick={() => setItem("currencyconverter")}
       >
         {" "}
@@ -111,12 +138,11 @@ function Menu({ setItem }) {
         {/* <h5>game</h5> */}
       </span>
       <span
-        style={{ "--i": 6, "--x": 1, "--y": 1 }}
-        onClick={() => setItem("setting")}
+        style={{ "--i": 3, "--x": 0, "--y": 0 }}
+        onClick={() => setItem("home")}
       >
         {" "}
-        <i className="fa-solid fa-cog"></i>
-        {/* <h5>Settings</h5> */}
+        <i class="fa-solid fa-house"></i>
       </span>
       <span
         style={{ "--i": 7, "--x": 0, "--y": 1 }}
