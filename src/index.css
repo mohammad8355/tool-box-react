@@ -37,6 +37,7 @@ body {
   display: flex;
   place-items: center;
   justify-content: center;
+  overflow-x: hidden;
 }
 
 h1 {

@@ -43,6 +43,7 @@ h2 {
   align-items: center;
   transition: 0.5s;
   transition-delay: 0.8s;
+  z-index: 1000;
 }
 .container span {
   position: absolute;

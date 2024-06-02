@@ -88,7 +88,7 @@ function reducer(state, action) {
       return { ...state, direction: action.payload };
     case "score":
       return { ...state, Score: Number(state.Score) + 1 };
-    case "move":
+    case "move":{
       const newDirPath = [...state.dirPath];
       let newDirection;
       switch (state.direction) {
@@ -115,15 +115,25 @@ function reducer(state, action) {
         const dir = newDirPath[i];
         switch (dir) {
           case "+H":
-            return { ...item, x: item.x + 1 };
+            {
+            return { ...item, x: item.x + 1 }
+          }
           case "-H":
-            return { ...item, x: item.x - 1 };
+            {
+            return { ...item, x: item.x - 1 }
+          }
           case "+V":
-            return { ...item, y: item.y + 1 };
+            {
+            return { ...item, y: item.y + 1 }
+          }
           case "-V":
-            return { ...item, y: item.y - 1 };
+            {
+            return { ...item, y: item.y - 1 }
+          }
           default:
-            return item;
+            {
+            return item
+          }
         }
       });
 
@@ -132,7 +142,8 @@ function reducer(state, action) {
         dirPath: newDirPath,
         snake: updatedSnake,
       };
-    case "eat":
+    }
+    case "eat":{
       let newSegment;
       switch (state.dirPath[0]) {
         case "+H":
@@ -158,6 +169,7 @@ function reducer(state, action) {
       } else {
         return new Error("null new segment");
       }
+    }
     case "reset":
       return {
         isStart: false,
@@ -172,7 +184,9 @@ function SnakeGame() {
   const [bestScore, setBestScore] = useLocalStorageState(0, "BestScore");
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isStart, Score, direction, snake, dirPath } = state;
+  const [color,setColor] = useState("red");
   const boardEL = useRef(null);
+  SnakeItemStyle.backgroundColor = color;
   function handleStart() {
     dispatch({ type: "start" });
   }
@@ -251,6 +265,9 @@ function SnakeGame() {
             onChange={handleStart}
           >
             {isStart ? "Pause" : "Start"}
+          </ControlBtn>
+          <ControlBtn>
+            <input type="color" value={color} onChange={(e) => setColor(e.target.value)}  />
           </ControlBtn>
           <DirectionControlContainer>
             <ControlBtn
@@ -391,11 +408,9 @@ function Snake({
               style={Object.assign({}, SnakeItemStyle, {
                 left: pos.x + "em",
                 top: pos.y + "em",
-                backgroundColor: "blue",
-                borderRadius: "0 .1em .1em 0",
               })}
             ></span>
-          ) : (
+          ) :(
             <span
               key={i}
               style={Object.assign({}, SnakeItemStyle, {

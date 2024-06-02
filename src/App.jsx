@@ -7,6 +7,7 @@ import ToDoList from "./components/ToDoList";
 import "./style.css";
 import SnakeGame from "./components/SnakeGame";
 import InfoBox from "./components/InfoBox";
+import Painting from "./components/Painting";
 function App() {
   const [Item, setItem] = useState("");
   return (
@@ -37,6 +38,8 @@ function App() {
                 work.this app developed by Mohammad.M Kh
               </p>
             </InfoBox>
+          ) : Item === "paint" ? (
+            <Painting />
           ) : (
             ""
           )}
@@ -52,7 +55,7 @@ function App() {
 }
 function Menu({ setItem }) {
   const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const position = { x: 0, y: 0 };
   return (
     <div
       className={open ? "container active" : "container"}
@@ -117,10 +120,10 @@ function Menu({ setItem }) {
       </span>
       <span
         style={{ "--i": 7, "--x": 0, "--y": 1 }}
-        onClick={() => setItem("profile")}
+        onClick={() => setItem("paint")}
       >
         {" "}
-        <i className="fa-solid fa-user"></i>
+        <i className="fa-solid fa-paintbrush"></i>
         {/* <h5>Settings</h5> */}
       </span>
       <span
