@@ -9,7 +9,7 @@ import SnakeGame from "./components/SnakeGame";
 import InfoBox from "./components/InfoBox";
 import Painting from "./components/Painting";
 function App() {
-  const [Item, setItem] = useState("");
+  const [Item, setItem] = useState("home");
   const [position, setPosition] = useState({
     x: window.innerWidth / 2,
     y: window.innerHeight / 2,
@@ -25,6 +25,9 @@ function App() {
       move(e);
     });
   }, [setPosition]);
+  useEffect(() => {
+    document.title = "ToolBox | " + Item;
+  }, [Item]);
   return (
     <>
       <div
@@ -142,7 +145,7 @@ function Menu({ setItem, position, setIsDragging }) {
         onClick={() => setItem("home")}
       >
         {" "}
-        <i class="fa-solid fa-house"></i>
+        <i className="fa-solid fa-house"></i>
       </span>
       <span
         style={{ "--i": 7, "--x": 0, "--y": 1 }}
