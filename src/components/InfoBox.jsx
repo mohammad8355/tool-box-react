@@ -33,11 +33,11 @@ let spanStyle = {
   color: "#fff",
 };
 function InfoBox({ icon = "?", iconColor = "#fff", children }) {
-  spanStyle.color = iconColor;
+  const newspanStyle = { ...spanStyle, color: iconColor };
   return (
     <div style={cardStyle}>
       <div style={iconStyle}>
-        <span style={spanStyle}>{icon}</span>
+        <span style={newspanStyle}>{icon}</span>
       </div>
       <div>{children}</div>
     </div>

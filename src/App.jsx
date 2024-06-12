@@ -11,8 +11,8 @@ import Painting from "./components/Painting";
 function App() {
   const [Item, setItem] = useState("home");
   const [position, setPosition] = useState({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
+    x: 10,
+    y: 10,
   });
   const [isDragging, setIsDragging] = useState(false);
   function move(e) {
@@ -46,8 +46,8 @@ function App() {
           />
           {Item === "calculator" ? (
             <Calculator />
-          ) : Item === "weather" ? (
-            <WeatherStatus />
+          ) : Item === "movie" ? (
+            ""
           ) : Item === "stopwatch" ? (
             <StopWatch />
           ) : Item === "currencyconverter" ? (
@@ -60,8 +60,15 @@ function App() {
             <InfoBox iconColor="#fc2db4">
               <h2>About App</h2>
               <p>
-                This ToolBox provide small apps that can be useful in your daily
-                work.this app developed by Mohammad.M Kh
+                This ToolBox app provide small tools that can be useful in your
+                daily work.this app developed by Mohammad.M Kh and use React in
+                this project for source code you can see this{" "}
+                <a
+                  target="_"
+                  href="https://github.com/mohammad8355/tool-box-react"
+                >
+                  LINK
+                </a>
               </p>
             </InfoBox>
           ) : Item === "paint" ? (
@@ -102,11 +109,13 @@ function Menu({ setItem, position, setIsDragging }) {
       </span>
       <span
         style={{ "--i": 1, "--x": 1, "--y": -1 }}
-        onClick={() => setItem("weather")}
+        onClick={() => setItem("movie")}
       >
         {" "}
-        <i className="fa-solid fa-temperature-low"></i>
-        {/* <h5>Weather</h5> */}
+        <a target="_" href="https://usepopcorn.mohammadmahdialmasi.ir">
+          <i class="fa-solid fa-video"></i>
+        </a>
+        {/* <h5>Movie</h5> */}
       </span>
       <span
         style={{ "--i": 2, "--x": -1, "--y": 0 }}
